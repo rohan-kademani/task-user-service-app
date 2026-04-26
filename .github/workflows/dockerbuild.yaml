@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build, Scan and Push Docker Image
 
 on:
   push:
@@ -21,8 +21,20 @@ jobs:
 
       - name: Build Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/user-service:${{ github.sha }} .
+          docker build \
+            -t ${{ secrets.DOCKER_USERNAME }}/user-service:${{ github.run_number }} \
+            -t ${{ secrets.DOCKER_USERNAME }}/user-service:latest \
+            .
+
+      - name: Scan Image with Trivy
+        uses: aquasecurity/trivy-action@v0.20.0
+        with:
+          image-ref: ${{ secrets.DOCKER_USERNAME }}/user-service:${{ github.run_number }}
+          format: table
+          exit-code: 1
+          severity: CRITICAL,HIGH
 
       - name: Push Image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/user-service:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/user-service:${{ github.run_number }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/user-service:latest
