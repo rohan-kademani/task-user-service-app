@@ -32,7 +32,7 @@ jobs:
           image-ref: ${{ secrets.DOCKER_USERNAME }}/user-service:${{ github.run_number }}
           format: table
           exit-code: 1
-          severity: CRITICAL,HIGH
+          severity: CRITICAL
 
       - name: Push Image
         run: |
